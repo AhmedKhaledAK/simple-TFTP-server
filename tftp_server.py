@@ -36,19 +36,6 @@ class TftpProcessor(object):
         DATA = 3
         ACK = 4
         ERROR = 5
-    
-    class ErrorMsgs(enum.Enum):
-        ZERO = "Not defined, see error message (if any)."
-        ONE = "File not found."
-        FOUR = "Illegal TFTP operation."
-        SIX = "File already exists."
-
-    class ErrorCodes(enum.Enum):
-        ZERO = 0
-        ONE = 1
-        FOUR = 4
-        SIX = 6
-
 
     def __init__(self):
         """
@@ -103,6 +90,9 @@ class TftpProcessor(object):
         elif opcode == 5:
             format_string += "h"
             format_string += str(len(bytesarray) - 5) + "sc"
+        else:
+            err = bytearray([0,6])
+            return struct.unpack("!h", err)
 
         print("opcode: " , opcode)
         print("format string: ", format_string)
@@ -156,6 +146,9 @@ class TftpProcessor(object):
             print("subseq: ", subseq512)
             format_string += "h" + str(len(subseq512)) + "s"
             packed_data = struct.pack(format_string, 3, block_number, subseq512)
+        else:
+            format_string += "h" + str(len("Illegal TFTP operation.")) + "sB"
+            packed_data = struct.pack(format_string, 5, 4, ("Illegal TFTP operation.").encode("ascii"), 0)
 
 
         return packed_data
