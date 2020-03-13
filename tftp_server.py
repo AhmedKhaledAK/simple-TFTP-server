@@ -110,8 +110,8 @@ class TftpProcessor(object):
             filename = input_packet[1].decode("ascii")
             print(filename)
             self.input_bytesarr = self._get_bytes_from_file(filename)
-            print(bytesarray) 
-            top512 = input_bytesarr[:512] 
+            print(self.input_bytesarr) 
+            top512 = self.input_bytesarr[:3] 
             print(top512)
     
             format_string += "h" + str(len(top512)) + "s"
@@ -128,8 +128,14 @@ class TftpProcessor(object):
             newfile.write(input_packet[2])
             block_number = input_packet[1]
             packed_data = struct.pack(format_string, 4, block_number)
-        elif input_packet[0] == 3:
-            
+        elif input_packet[0] == 4:
+            block_number = input_packet[1]+1
+            print("arrayy: ", self.input_bytesarr)
+            subseq512 = self.input_bytesarr[3 * (block_number - 1): block_number*3: 1]
+            print("subseq: ", subseq512)
+            format_string += "h" + str(len(subseq512)) + "s"
+            packed_data = struct.pack(format_string, 3, block_number, subseq512)
+
 
         return packed_data
 
@@ -177,23 +183,26 @@ def setup_sockets(address):
     recv_send_packets(sock)
 
 def recv_send_packets(sock):
+
+    tftpproc = TftpProcessor()
+
     while(1):
         rec_packet = sock.recvfrom(4096)
         print("received packet: ", rec_packet)
-        tftp = do_socket_logic(rec_packet)
+        tftp = do_socket_logic(rec_packet, tftpproc)
         if tftp.has_pending_packets_to_be_sent():
             print("packets available")
             packet = tftp.get_next_output_packet()
             print(packet)
             sock.sendto(packet, rec_packet[1])
 
-def do_socket_logic(udp_packet):
+def do_socket_logic(udp_packet, tftpproc):
     """
     Example function for some helper logic, in case you
     want to be tidy and avoid stuffing the main function.
     Feel free to delete this function.
     """
-    tftpproc = TftpProcessor()
+    
     tftpproc.process_udp_packet(udp_packet[0], udp_packet[1])
 
     return tftpproc
