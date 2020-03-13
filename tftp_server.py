@@ -46,6 +46,12 @@ class TftpProcessor(object):
         self.packet_buffer = []
         self.output_fname = "a.txt"
         self.input_bytesarr = []
+
+        self.errors = {0: "Not defined, see error message (if any).", 
+                       1: "File not found.",
+                       4: "Illegal TFTP operation.",
+                       6: "File already exists."}
+
         pass
 
     def process_udp_packet(self, packet_data, packet_source):
@@ -127,7 +133,7 @@ class TftpProcessor(object):
                 print(list(packed_data))
             else:
                 format_string += "h" + str(len("File not found.")) + "sB"
-                packed_data = struct.pack(format_string, 5, 1, ("File not found.").encode("ascii"), 0)
+                packed_data = struct.pack(format_string, 5, 1, self.errors[1].encode("ascii"), 0)
 
             
         elif input_packet[0] == 2:
@@ -148,7 +154,7 @@ class TftpProcessor(object):
             packed_data = struct.pack(format_string, 3, block_number, subseq512)
         else:
             format_string += "h" + str(len("Illegal TFTP operation.")) + "sB"
-            packed_data = struct.pack(format_string, 5, 4, ("Illegal TFTP operation.").encode("ascii"), 0)
+            packed_data = struct.pack(format_string, 5, 4, self.errors[4].encode("ascii"), 0)
 
 
         return packed_data
