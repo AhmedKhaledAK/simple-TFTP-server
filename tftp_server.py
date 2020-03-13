@@ -123,11 +123,10 @@ class TftpProcessor(object):
             packed_data = struct.pack(format_string, 4, 0)
         elif input_packet[0] == 3:
             format_string += "h"
-            block_number = input_packet[1]
-            packed_data = struct.pack(format_string, 4, block_number)
             newfile = open(self.fname, "ab")
             newfile.write(input_packet[2])
-
+            block_number = input_packet[1]
+            packed_data = struct.pack(format_string, 4, block_number)
 
         return packed_data
 
