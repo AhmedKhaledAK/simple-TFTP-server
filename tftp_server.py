@@ -43,6 +43,12 @@ class TftpProcessor(object):
         FOUR = "Illegal TFTP operation."
         SIX = "File already exists."
 
+    class ErrorCodes(enum.Enum):
+        ZERO = 0
+        ONE = 1
+        FOUR = 4
+        SIX = 6
+
 
     def __init__(self):
         """
@@ -130,7 +136,9 @@ class TftpProcessor(object):
 
                 print(list(packed_data))
             else:
-                pass
+                format_string += "h" + str(len("File not found.")) + "sB"
+                packed_data = struct.pack(format_string, 5, 1, ("File not found.").encode("ascii"), 0)
+
             
         elif input_packet[0] == 2:
             format_string += "h"
