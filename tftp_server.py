@@ -44,6 +44,7 @@ class TftpProcessor(object):
         Here's an example of what you can do inside this function.
         """
         self.packet_buffer = []
+        self.fname = "a.txt"
         pass
 
     def process_udp_packet(self, packet_data, packet_source):
@@ -91,7 +92,7 @@ class TftpProcessor(object):
 
         print("opcode: " , opcode)
         print("format string: ", format_string)
-
+        print("packet list: ",struct.unpack(format_string, packet_bytes))
         return struct.unpack(format_string, packet_bytes)
 
     def _get_bytes_from_file(self, filename):  
@@ -116,6 +117,17 @@ class TftpProcessor(object):
             packed_data = struct.pack(format_string, 3, 1, top512)
 
             print(list(packed_data))
+        
+        elif input_packet[0] == 2:
+            format_string += "h"
+            packed_data = struct.pack(format_string, 4, 0)
+        elif input_packet[0] == 3:
+            format_string += "h"
+            block_number = input_packet[1]
+            packed_data = struct.pack(format_string, 4, block_number)
+            newfile = open(self.fname, "ab")
+            newfile.write(input_packet[2])
+
 
         return packed_data
 
