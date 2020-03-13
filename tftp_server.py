@@ -36,6 +36,13 @@ class TftpProcessor(object):
         DATA = 3
         ACK = 4
         ERROR = 5
+    
+    class ErrorMsgs(enum.Enum):
+        ZERO = "Not defined, see error message (if any)."
+        ONE = "File not found."
+        FOUR = "Illegal TFTP operation."
+        SIX = "File already exists."
+
 
     def __init__(self):
         """
@@ -96,8 +103,11 @@ class TftpProcessor(object):
         print("packet list: ",struct.unpack(format_string, packet_bytes))
         return struct.unpack(format_string, packet_bytes)
 
-    def _get_bytes_from_file(self, filename):  
-        return open(filename, "rb").read()
+    def _get_bytes_from_file(self, filename): 
+        try:
+            return open(filename, "rb").read
+        except FileNotFoundError:
+            return None
 
     def _do_some_logic(self, input_packet):
         """
@@ -110,15 +120,18 @@ class TftpProcessor(object):
             filename = input_packet[1].decode("ascii")
             print(filename)
             self.input_bytesarr = self._get_bytes_from_file(filename)
-            print(self.input_bytesarr) 
-            top512 = self.input_bytesarr[:3] 
-            print(top512)
-    
-            format_string += "h" + str(len(top512)) + "s"
-            packed_data = struct.pack(format_string, 3, 1, top512)
-
-            print(list(packed_data))
+            if self.input_bytesarr != None:
+                print(self.input_bytesarr) 
+                top512 = self.input_bytesarr[:3] 
+                print(top512)
         
+                format_string += "h" + str(len(top512)) + "s"
+                packed_data = struct.pack(format_string, 3, 1, top512)
+
+                print(list(packed_data))
+            else:
+                pass
+            
         elif input_packet[0] == 2:
             format_string += "h"
             packed_data = struct.pack(format_string, 4, 0)
