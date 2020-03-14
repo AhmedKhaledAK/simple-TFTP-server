@@ -258,6 +258,7 @@ def recv_send_packets(sock):
             sock.sendto(packet, rec_packet[1])
             if tftpproc.error_flag == True:
                 # TODO: terminate
+                pass
 
 def do_socket_logic(udp_packet, tftpproc):
     """
