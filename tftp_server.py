@@ -99,11 +99,20 @@ class TftpProcessor(object):
         elif opcode == 3:
             format_string += "h"
             format_string += str(len(bytesarray) - 4) + "s"
+
         elif opcode == 4:
             format_string += "h"
+            packet_bytes = packet_bytes[:4]
+            print("printing now in ACK")
+            print(packet_bytes)
+
         elif opcode == 5:
-            format_string += "h"
-            format_string += str(len(bytesarray) - 5) + "sc"
+            zero_idx = bytesarray.index(0, 4)
+            format_string += "h" + str(zero_idx-4) + "sc"
+            
+            packet_bytes = packet_bytes[:zero_idx+1]
+            print("printing now in ERROR elif")
+            print(packet_bytes)
         else:
             err = bytearray([0,6])
             return list(struct.unpack("!h", err))
