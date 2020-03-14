@@ -54,8 +54,7 @@ class TftpProcessor(object):
 
         self.caddress = None
         self.last_block_num = -1
-
-        pass
+        self.error_flag = 0
 
     def process_udp_packet(self, packet_data, packet_source):
         """
