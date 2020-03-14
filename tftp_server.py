@@ -91,6 +91,12 @@ class TftpProcessor(object):
             sec_zero_idx = bytesarray.index(0,first_zero_idx + 1)    # find the index of the second zero which terminates the "mode" field
             mode_len = sec_zero_idx - first_zero_idx - 1
             format_string += str(mode_len) + "sc"
+            
+            
+            del( bytesarray[sec_zero_idx+1:] )
+            packet_bytes = packet_bytes[:sec_zero_idx+1]
+
+
         elif opcode == 3:
             format_string += "h"
             format_string += str(len(bytesarray) - 4) + "s"
@@ -101,16 +107,16 @@ class TftpProcessor(object):
             format_string += str(len(bytesarray) - 5) + "sc"
         else:
             err = bytearray([0,6])
-            return struct.unpack("!h", err)
+            return list(struct.unpack("!h", err))
 
         print("opcode: " , opcode)
         print("format string: ", format_string)
         print("packet list: ",struct.unpack(format_string, packet_bytes))
-        return struct.unpack(format_string, packet_bytes)
+        return list(struct.unpack(format_string, packet_bytes))
 
     def _get_bytes_from_file(self, filename): 
         try:
-            return open(filename, "rb").read
+            return open(filename, "rb").read()
         except FileNotFoundError:
             return None
 
@@ -126,7 +132,7 @@ class TftpProcessor(object):
             print(filename)
             self.input_bytesarr = self._get_bytes_from_file(filename)
             if self.input_bytesarr != None:
-                print(self.input_bytesarr) 
+                print("file: ",self.input_bytesarr) 
                 top512 = self.input_bytesarr[:3] 
                 print(top512)
         
@@ -162,7 +168,6 @@ class TftpProcessor(object):
              #   return None
 
             block_number = input_packet[1]+1
-            print("arrayy: ", self.input_bytesarr)
             subseq512 = self.input_bytesarr[3 * (block_number - 1): block_number*3: 1]
             print("subseq: ", subseq512)
             format_string += "h" + str(len(subseq512)) + "s"
