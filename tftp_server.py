@@ -52,6 +52,8 @@ class TftpProcessor(object):
                        4: "Illegal TFTP operation.",
                        6: "File already exists."}
 
+        self.caddress = None
+
         pass
 
     def process_udp_packet(self, packet_data, packet_source):
@@ -211,6 +213,10 @@ def recv_send_packets(sock):
 
     while(1):
         rec_packet = sock.recvfrom(4096)
+        if tftpproc.caddress == None:
+            tftpproc.caddress = rec_packet[1]
+        elif rec_packet[1] != tftpproc.caddress:
+            continue
         print("received packet: ", rec_packet)
         tftp = do_socket_logic(rec_packet, tftpproc)
         if tftp.has_pending_packets_to_be_sent():
