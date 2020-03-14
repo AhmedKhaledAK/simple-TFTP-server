@@ -54,10 +54,10 @@ class TftpProcessor(object):
 
         self.caddress = None
         self.last_block_num = -1
-        self.error_flag = False
+        self.termination_flag = 0
 
     def reset(self):
-        self.error_flag = False
+        self.termination_flag = 0
         self.packet_buffer = []
         self.output_fname = ""
         self.input_bytesarr = []
@@ -104,13 +104,18 @@ class TftpProcessor(object):
 
 
         elif opcode == TftpProcessor.TftpPacketType.DATA.value:
-            format_string += "h"
-            format_string += str(len(bytesarray) - 4) + "s"
+            format_string += "h" + str(len(bytesarray) - 4) + "s"
+            if len(bytesarray) - 4 < 512:
+                self.termination_flag = 2
 
         elif opcode == TftpProcessor.TftpPacketType.ACK.value:
             format_string += "h"
+
+            if self.termination_flag == 1:
+                self.termination_flag = 2
+
             packet_bytes = packet_bytes[:4]
-            print("printing now in ACK")
+            print("printing now")
             print(packet_bytes)
 
         elif opcode == TftpProcessor.TftpPacketType.ERROR.value:
@@ -156,7 +161,7 @@ class TftpProcessor(object):
 
                 print(list(packed_data))
             else:
-                self.error_flag = True
+                self.termination_flag = 2
                 format_string += "h" + str(len("File not found.")) + "sB"
                 packed_data = struct.pack(format_string, 5, 1, self.errors[1].encode("ascii"), 0)
 
@@ -189,7 +194,7 @@ class TftpProcessor(object):
             format_string += "h" + str(len(subseq512)) + "s"
             packed_data = struct.pack(format_string, 3, block_number, subseq512)
         else:
-            self.error_flag = True
+            self.termination_flag = 2
             format_string += "h" + str(len("Illegal TFTP operation.")) + "sB"
             packed_data = struct.pack(format_string, 5, 4, self.errors[4].encode("ascii"), 0)
 
