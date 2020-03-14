@@ -92,7 +92,6 @@ class TftpProcessor(object):
             mode_len = sec_zero_idx - first_zero_idx - 1
             format_string += str(mode_len) + "sc"
             
-            
             del( bytesarray[sec_zero_idx+1:] )
             packet_bytes = packet_bytes[:sec_zero_idx+1]
 
