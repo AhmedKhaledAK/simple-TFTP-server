@@ -44,7 +44,7 @@ class TftpProcessor(object):
         Here's an example of what you can do inside this function.
         """
         self.packet_buffer = []
-        self.output_fname = "a.txt"
+        self.output_fname = ""
         self.input_bytesarr = []
 
         self.errors = {0: "Not defined, see error message (if any).", 
@@ -139,6 +139,9 @@ class TftpProcessor(object):
         elif input_packet[0] == 2:
             format_string += "h"
             packed_data = struct.pack(format_string, 4, 0)
+
+            self.output_fname = input_packet[1].decode("ascii")
+
         elif input_packet[0] == 3:
             format_string += "h"
             newfile = open(self.output_fname, "ab")
