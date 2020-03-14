@@ -148,8 +148,8 @@ class TftpProcessor(object):
         elif input_packet[0] == 3:
             block_number = input_packet[1]
 
-            if self.check_and_set_blknum(block_number) == -1:
-                return None
+            #if self.check_and_set_blknum(block_number) == -1:
+             #   return None
 
             format_string += "h"
             newfile = open(self.output_fname, "ab")
@@ -158,8 +158,8 @@ class TftpProcessor(object):
             packed_data = struct.pack(format_string, 4, block_number)
         elif input_packet[0] == 4:
 
-            if self.check_and_set_blknum(input_packet[1]) == -1:
-                return None
+            #if self.check_and_set_blknum(input_packet[1]) == -1:
+             #   return None
 
             block_number = input_packet[1]+1
             print("arrayy: ", self.input_bytesarr)
@@ -240,8 +240,8 @@ def recv_send_packets(sock):
             print("packets available")
             packet = tftp.get_next_output_packet()
             print(packet)
-            if packet is not None:
-                sock.sendto(packet, rec_packet[1])
+            #if packet is not None:
+            sock.sendto(packet, rec_packet[1])
 
 def do_socket_logic(udp_packet, tftpproc):
     """
