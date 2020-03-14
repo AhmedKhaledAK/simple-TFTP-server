@@ -53,6 +53,7 @@ class TftpProcessor(object):
                        6: "File already exists."}
 
         self.caddress = None
+        self.last_block_num = -1
 
         pass
 
@@ -145,12 +146,21 @@ class TftpProcessor(object):
             self.output_fname = input_packet[1].decode("ascii")
 
         elif input_packet[0] == 3:
+            block_number = input_packet[1]
+
+            if self.check_and_set_blknum(block_number) == -1:
+                return None
+
             format_string += "h"
             newfile = open(self.output_fname, "ab")
             newfile.write(input_packet[2])
-            block_number = input_packet[1]
+            
             packed_data = struct.pack(format_string, 4, block_number)
         elif input_packet[0] == 4:
+
+            if self.check_and_set_blknum(input_packet[1]) == -1:
+                return None
+
             block_number = input_packet[1]+1
             print("arrayy: ", self.input_bytesarr)
             subseq512 = self.input_bytesarr[3 * (block_number - 1): block_number*3: 1]
@@ -163,6 +173,13 @@ class TftpProcessor(object):
 
 
         return packed_data
+
+    def check_and_set_blknum(self, blknum):
+        if self.last_block_num == -1 or self.last_block_num < blknum:
+            self.last_block_num = blknum
+            return 1
+        else:
+            return -1 
 
     def get_next_output_packet(self):
         """
@@ -215,7 +232,7 @@ def recv_send_packets(sock):
         rec_packet = sock.recvfrom(4096)
         if tftpproc.caddress == None:
             tftpproc.caddress = rec_packet[1]
-        elif rec_packet[1] != tftpproc.caddress:
+        elif rec_packet[1][0] != tftpproc.caddress[0]:
             continue
         print("received packet: ", rec_packet)
         tftp = do_socket_logic(rec_packet, tftpproc)
@@ -223,7 +240,8 @@ def recv_send_packets(sock):
             print("packets available")
             packet = tftp.get_next_output_packet()
             print(packet)
-            sock.sendto(packet, rec_packet[1])
+            if packet is not None:
+                sock.sendto(packet, rec_packet[1])
 
 def do_socket_logic(udp_packet, tftpproc):
     """
