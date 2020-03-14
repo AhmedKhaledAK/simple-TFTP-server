@@ -84,7 +84,7 @@ class TftpProcessor(object):
         opcode = bytesarray[1]
         format_string = "!h"
 
-        if opcode == TftpProcessor.TftpPacketType.RRQ or opcode == TftpProcessor.TftpPacketType.WRQ:
+        if opcode == 1 or opcode == 2:
             first_zero_idx = bytesarray.index(0,1)   # do not search from the first index to avoid the "0" in the "opcode" field
             filename_len = first_zero_idx - 2   # 2 is the length of the opcode
             format_string += str(filename_len) + "sc"
@@ -96,12 +96,12 @@ class TftpProcessor(object):
             packet_bytes = packet_bytes[:sec_zero_idx+1]
 
 
-        elif opcode == TftpProcessor.TftpPacketType.DATA:
+        elif opcode == 3:
             format_string += "h"
             format_string += str(len(bytesarray) - 4) + "s"
-        elif opcode == TftpProcessor.TftpPacketType.ACK:
+        elif opcode == 4:
             format_string += "h"
-        elif opcode == TftpProcessor.TftpPacketType.ERROR:
+        elif opcode == 5:
             format_string += "h"
             format_string += str(len(bytesarray) - 5) + "sc"
         else:
@@ -126,7 +126,7 @@ class TftpProcessor(object):
         format_string = "!h"
         packed_data = ""
 
-        if input_packet[0] == TftpProcessor.TftpPacketType.RRQ:
+        if input_packet[0] == 1:
             filename = input_packet[1].decode("ascii")
             print(filename)
             self.input_bytesarr = self._get_bytes_from_file(filename)
@@ -144,13 +144,13 @@ class TftpProcessor(object):
                 packed_data = struct.pack(format_string, 5, 1, self.errors[1].encode("ascii"), 0)
 
             
-        elif input_packet[0] == TftpProcessor.TftpPacketType.WRQ:
+        elif input_packet[0] == 2:
             format_string += "h"
             packed_data = struct.pack(format_string, 4, 0)
 
             self.output_fname = input_packet[1].decode("ascii")
 
-        elif input_packet[0] == TftpProcessor.TftpPacketType.DATA:
+        elif input_packet[0] == 3:
             block_number = input_packet[1]
 
             #if self.check_and_set_blknum(block_number) == -1:
@@ -161,7 +161,7 @@ class TftpProcessor(object):
             newfile.write(input_packet[2])
             
             packed_data = struct.pack(format_string, 4, block_number)
-        elif input_packet[0] == TftpProcessor.TftpPacketType.ACK:
+        elif input_packet[0] == 4:
 
             #if self.check_and_set_blknum(input_packet[1]) == -1:
              #   return None
