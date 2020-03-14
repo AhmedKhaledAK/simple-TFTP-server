@@ -141,7 +141,7 @@ class TftpProcessor(object):
             self.input_bytesarr = self._get_bytes_from_file(filename)
             if self.input_bytesarr != None:
                 print("file: ",self.input_bytesarr) 
-                top512 = self.input_bytesarr[:3] 
+                top512 = self.input_bytesarr[:512] 
                 print(top512)
         
                 format_string += "h" + str(len(top512)) + "s"
@@ -176,7 +176,7 @@ class TftpProcessor(object):
              #   return None
 
             block_number = input_packet[1]+1
-            subseq512 = self.input_bytesarr[3 * (block_number - 1): block_number*3: 1]
+            subseq512 = self.input_bytesarr[512 * (block_number - 1): block_number*512: 1]
             print("subseq: ", subseq512)
             format_string += "h" + str(len(subseq512)) + "s"
             packed_data = struct.pack(format_string, 3, block_number, subseq512)
