@@ -56,6 +56,14 @@ class TftpProcessor(object):
         self.last_block_num = -1
         self.error_flag = False
 
+    def reset(self):
+        self.error_flag = False
+        self.packet_buffer = []
+        self.output_fname = ""
+        self.input_bytesarr = []
+        self.caddress = None
+        self.last_block_num = -1
+
     def process_udp_packet(self, packet_data, packet_source):
         """
         Parse the input packet, execute your logic according to that packet.
@@ -258,6 +266,8 @@ def recv_send_packets(sock):
             sock.sendto(packet, rec_packet[1])
             if tftpproc.error_flag == True:
                 # TODO: terminate
+                tftpproc.reset()
+
                 pass
 
 def do_socket_logic(udp_packet, tftpproc):
