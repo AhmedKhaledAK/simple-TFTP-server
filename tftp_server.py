@@ -84,7 +84,7 @@ class TftpProcessor(object):
         opcode = bytesarray[1]
         format_string = "!h"
 
-        if opcode == TftpProcessor.TftpPacketType.RRQ.value or opcode == TftpProcessor.TftpPacketType.WRO.value:
+        if opcode == TftpProcessor.TftpPacketType.RRQ.value or opcode == TftpProcessor.TftpPacketType.WRQ.value:
             first_zero_idx = bytesarray.index(0,1)   # do not search from the first index to avoid the "0" in the "opcode" field
             filename_len = first_zero_idx - 2   # 2 is the length of the opcode
             format_string += str(filename_len) + "sc"
