@@ -162,7 +162,7 @@ class TftpProcessor(object):
                 print(list(packed_data))
             else:
                 self.termination_flag = 2
-                format_string += "h" + str(len("File not found.")) + "sB"
+                format_string += "h" + str(len(self.errors[1])) + "sB"
                 packed_data = struct.pack(format_string, 5, 1, self.errors[1].encode("ascii"), 0)
 
             
@@ -195,7 +195,7 @@ class TftpProcessor(object):
             packed_data = struct.pack(format_string, 3, block_number, subseq512)
         else:
             self.termination_flag = 2
-            format_string += "h" + str(len("Illegal TFTP operation.")) + "sB"
+            format_string += "h" + str(len(self.errors[4])) + "sB"
             packed_data = struct.pack(format_string, 5, 4, self.errors[4].encode("ascii"), 0)
 
 
@@ -269,11 +269,6 @@ def recv_send_packets(sock):
             print(packet)
             #if packet is not None:
             sock.sendto(packet, rec_packet[1])
-            if tftpproc.error_flag == True:
-                # TODO: terminate
-                tftpproc.reset()
-
-                pass
 
 def do_socket_logic(udp_packet, tftpproc):
     """
