@@ -286,17 +286,6 @@ def recv_send_packets(sock):
             if tftpproc.termination_flag == 2:
                 tftpproc.reset()
 
-def do_socket_logic(udp_packet, tftpproc):
-    """
-    Example function for some helper logic, in case you
-    want to be tidy and avoid stuffing the main function.
-    Feel free to delete this function.
-    """
-    
-    tftpproc.process_udp_packet(udp_packet[0], udp_packet[1])
-
-    return tftpproc
-
 def get_arg(param_index, default=None):
     """
         Gets a command line argument by index (note: index starts from 1)
