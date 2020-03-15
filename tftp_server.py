@@ -260,7 +260,7 @@ def setup_sockets(address):
 
     serv_address = (address, 69)
     sock.bind(serv_address)
-
+    sock.settimeout(500)
     recv_send_packets(sock)
 
 def recv_send_packets(sock):
