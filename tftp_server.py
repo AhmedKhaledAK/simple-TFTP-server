@@ -183,7 +183,10 @@ class TftpProcessor(object):
              #   return None
 
             format_string += "h"
-            newfile = open(self.output_fname, "ab")
+            if block_number == 1:
+                newfile = open(self.output_fname, "wb")
+            else:
+                newfile = open(self.output_fname, "ab")
             newfile.write(input_packet[2])
             
             packed_data = struct.pack(format_string, 4, block_number)
