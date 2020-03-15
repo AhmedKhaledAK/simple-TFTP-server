@@ -105,6 +105,7 @@ class TftpProcessor(object):
 
         elif opcode == TftpProcessor.TftpPacketType.DATA.value:
             format_string += "h" + str(len(bytesarray) - 4) + "s"
+            
             if len(bytesarray) - 4 < 512:
                 self.termination_flag = 2
 
@@ -112,7 +113,7 @@ class TftpProcessor(object):
             format_string += "h"
 
             if self.termination_flag == 1:
-                self.termination_flag = 2
+                self.termination_flag = 3
 
             packet_bytes = packet_bytes[:4]
             print("printing now")
@@ -155,7 +156,10 @@ class TftpProcessor(object):
                 print("file: ",self.input_bytesarr) 
                 top512 = self.input_bytesarr[:512] 
                 print(top512)
-        
+
+                if (len(top512) < 512):
+                    self.termination_flag = 1
+
                 format_string += "h" + str(len(top512)) + "s"
                 packed_data = struct.pack(format_string, 3, 1, top512)
 
@@ -191,6 +195,10 @@ class TftpProcessor(object):
             block_number = input_packet[1]+1
             subseq512 = self.input_bytesarr[512 * (block_number - 1): block_number*512: 1]
             print("subseq: ", subseq512)
+
+            if len(subseq512) < 512:
+                self.termination_flag = 1
+
             format_string += "h" + str(len(subseq512)) + "s"
             packed_data = struct.pack(format_string, 3, block_number, subseq512)
         else:
@@ -268,7 +276,12 @@ def recv_send_packets(sock):
             packet = tftp.get_next_output_packet()
             print(packet)
             #if packet is not None:
+            #if tftpproc.termination_flag == 3:
+             #   tftpproc.reset()
+              #  continue
             sock.sendto(packet, rec_packet[1])
+            #if tftpproc.termination_flag == 2:
+             #   tftpproc.reset()
 
 def do_socket_logic(udp_packet, tftpproc):
     """
