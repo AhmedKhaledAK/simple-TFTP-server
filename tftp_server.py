@@ -274,10 +274,10 @@ def recv_send_packets(sock):
         elif rec_packet[1][0] != tftpproc.caddress[0]:
             continue
         print("received packet: ", rec_packet)
-        tftp = do_socket_logic(rec_packet, tftpproc)
-        if tftp.has_pending_packets_to_be_sent():
+        tftpproc.process_udp_packet(rec_packet[0], rec_packet[1])
+        if tftpproc.has_pending_packets_to_be_sent():
             print("packets available")
-            packet = tftp.get_next_output_packet()
+            packet = tftpproc.get_next_output_packet()
             print(packet)
             if tftpproc.termination_flag == 3:
                 tftpproc.reset()
